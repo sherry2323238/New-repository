@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>營養計算 App（自用版）</title>
+<style>
+body { font-family: Arial; line-height: 1.8; }
+input { width: 80px; }
+h2 { background:#f2f2f2; padding:6px; }
+.good { color: green; font-weight: bold; }
+.low { color: red; font-weight: bold; }
+.high { color: orange; font-weight: bold; }
+</style>
+</head>
+
+<body>
+
+<h1>營養計算 App（自用）</h1>
+
+<h2>基本資料</h2>
+性別：
+<select id="sex">
+  <option value="male">男</option>
+  <option value="female">女</option>
+</select><br>
+
+身高（cm）：<input type="number" id="height"><br>
+體重（kg）：<input type="number" id="weight"><br>
+年齡：<input type="number" id="age"><br>
+壓力因子：<input type="number" step="0.1" id="stress" value="1.1"><br><br>
+
+<button onclick="calculate()">計算</button>
+
+<h2>結果</h2>
+理想體重：<span id="ibw"></span> kg<br>
+調整體重：<span id="abw"></span> kg<br>
+BMI：<span id="bmi"></span><br>
+BEE：<span id="bee"></span> kcal<br>
+TER：<span id="ter"></span> kcal<br>
+蛋白質需求：
+<ul>
+<li>最低（1.2 g/kg）：<span id="proMin"></span> g</li>
+<li>最高（1.5 g/kg）：<span id="proMax"></span> g</li>
+</ul>
+
+<h2>六大類食物（輸入份數）</h2>
+全穀雜糧：<input type="number" id="g1" value="0"> 份<br>
+豆魚肉蛋（中）：<input type="number" id="g2" value="0"> 份<br>
+蔬菜：<input type="number" id="g3" value="0"> 份<br>
+水果：<input type="number" id="g4" value="0"> 份<br>
+乳品：<input type="number" id="g5" value="0"> 份<br>
+油脂堅果：<input type="number" id="g6" value="0"> 份<br><br>
+
+<button onclick="foodCalc()">計算攝取量</button>
+
+<h2>攝取結果</h2>
+總熱量：<span id="foodKcal"></span> kcal<br>
+總蛋白質：<span id="foodProtein"></span> g<br>
+蛋白質評估：<span id="proteinStatus"></span>
+
+<script>
+function calculate() {
+  let h = document.getElementById("height").value / 100;
+  let w = Number(document.getElementById("weight").value);
+  let age = Number(document.getElementById("age").value);
+  let sex = document.getElementById("sex").value;
+  let stress = Number(document.getElementById("stress").value);
+
+  let ibw = 22 * h * h;
+  let abw = ibw + 0.25 * (w - ibw);
+  let bmi = w / (h * h);
+
+  let bee = sex === "male"
+    ? 66 + (13.7 * w) + (5 * h * 100) - (6.8 * age)
+    : 665 + (9.6 * w) + (1.7 * h * 100) - (4.9 * age);
+
+  let ter = bee * 1.2 * stress;
+
+  document.getElementById("ibw").innerText = ibw.toFixed(1);
+  document.getElementById("abw").innerText = abw.toFixed(1);
+  document.getElementById("bmi").innerText = bmi.toFixed(1);
+  document.getElementById("bee").innerText = bee.toFixed(0);
+  document.getElementById("ter").innerText = ter.toFixed(0);
+  document.getElementById("proMin").innerText = (w * 1.2).toFixed(1);
+  document.getElementById("proMax").innerText = (w * 1.5).toFixed(1);
+}
+
+function foodCalc() {
+  let w = Number(document.getElementById("weight").value);
+
+  let kcal =
+    g1.value * 70 +
+    g2.value * 75 +
+    g3.value * 25 +
+    g4.value * 60 +
+    g5.value * 170 +
+    g6.value * 45;
+
+  let protein =
+    g1.value * 2 +
+    g2.value * 7 +
+    g3.value * 1 +
+    g4.value * 0 +
+    g5.value * 8 +
+    g6.value * 2;
+
+  let min = w * 1.2;
+  let max = w * 1.5;
+
+  let status = document.getElementById("proteinStatus");
+  status.className = "";
+
+  if (protein < min) {
+    status.innerText = "不足";
+    status.classList.add("low");
+  } else if (protein > max) {
+    status.innerText = "超標";
+    status.classList.add("high");
+  } else {
+    status.innerText = "達標";
+    status.classList.add("good");
+  }
+
+  document.getElementById("foodKcal").innerText = kcal;
+  document.getElementById("foodProtein").innerText = protein.toFixed(1);
+}
+</script>
+
+</body>
+</html>
